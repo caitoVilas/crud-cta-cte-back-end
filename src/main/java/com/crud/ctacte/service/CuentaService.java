@@ -56,4 +56,10 @@ public class CuentaService  {
         return cuentaRepository.findById(id).orElse(null);
     }
 
+    @Transactional
+    public Cuenta update(Cuenta cuenta){
+
+        return cuentaRepository.save(cuenta);
+    }
+
 }

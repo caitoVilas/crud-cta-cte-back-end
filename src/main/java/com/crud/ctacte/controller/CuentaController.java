@@ -56,10 +56,11 @@ public class CuentaController {
                     HttpStatus.BAD_REQUEST);
         }
 
-        Cuenta nuevaCuenta = new Cuenta(cuentaDTO.getSaldo(),
-                                        cuentaDTO.getMoneda(),
-                                        cuentaDTO.getTitular(),
-                                        cuentaDTO.getTipo());
+        Cuenta nuevaCuenta = new Cuenta( 0l,
+                                         cuentaDTO.getSaldo(),
+                                         cuentaDTO.getMoneda(),
+                                         cuentaDTO.getTitular(),
+                                         cuentaDTO.getTipo());
 
         cuentaService.create(nuevaCuenta);
 

@@ -19,7 +19,8 @@ public class Cuenta implements Serializable {
     public Cuenta() {
     }
 
-    public Cuenta(Float saldo, String moneda, Long titular, String tipo) {
+    public Cuenta(Long id, Float saldo, String moneda, Long titular, String tipo) {
+        this.id = id;
         this.saldo = saldo;
         this.moneda = moneda;
         this.titular = titular;

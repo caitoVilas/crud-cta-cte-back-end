@@ -6,6 +6,8 @@ import com.crud.ctacte.entity.Cuenta;
 import com.crud.ctacte.entity.Movimiento;
 import com.crud.ctacte.service.CuentaService;
 import com.crud.ctacte.service.MovimientoService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +27,8 @@ public class MovimientoController {
     private MovimientoService movimientoService;
     @Autowired
     private CuentaService cuentaService;
+
+    private static final Logger logger = LoggerFactory.getLogger(MovimientoController.class);
 
     // LISTA DE MOVIMIENTOS PAGINADA
     @GetMapping("/{id}")
@@ -47,55 +51,78 @@ public class MovimientoController {
     @PostMapping
     public ResponseEntity<?> add(@RequestBody MovimientoDTO movimientoDTO) {
 
-         Float maxPeso = 1000f;
-         Float maxDolar = 300f;
-         Float maxEuro = 150f;
-         Float nuevoSaldo =0f;
-         boolean enabled = false;
+        Float maxPeso = -1000f;
+        Float maxDolar = -300f;
+        Float maxEuro = -150f;
+        Float viejoSaldo = 0f;
+        Float nuevoSaldo = 0f;
+        boolean permiso = false;
+
+
 
         Cuenta cuenta = cuentaService.get(movimientoDTO.getIdcuenta());
+        viejoSaldo = cuenta.getSaldo();
 
-        if (movimientoDTO.getTipo() == "Debito"){
+        if (movimientoDTO.getTipo().equals("Debito") ){
+            nuevoSaldo = viejoSaldo + movimientoDTO.getImporte();
 
-            nuevoSaldo = cuenta.getSaldo() - movimientoDTO.getImporte();
+            if (cuenta.getMoneda().equals("Peso")){
 
-           if (cuenta.getMoneda() == "Peso") {
-               if (nuevoSaldo < maxPeso) {
-                   enabled = false;
-               }
-           }else if (cuenta.getMoneda() == "Dolar"){
+                if(nuevoSaldo < maxPeso){
+
+                    permiso = false;
+                }else {
+                    permiso = true;
+
+                }
+            }
+            if (cuenta.getMoneda().equals("Dolar")){
+
                 if (nuevoSaldo < maxDolar){
-                     enabled = false;
-                }
-           }else if (cuenta.getMoneda() =="Euro"){
-                if (nuevoSaldo < maxEuro) {
-                    enabled = false;
-                }
-           }
 
-           if(!enabled){
+                    permiso = false;
+                }else {
+                    permiso = true;
 
-               return new ResponseEntity(new Mensaje("Supera el Descubiero Permitido"),
-                       HttpStatus.BAD_REQUEST);
-           }
+                }
+
+            }
+            if (cuenta.getMoneda().equals("Euro")){
+                logger.info("cuenta en Euro");
+
+               if (nuevoSaldo < maxEuro){
+                   permiso = false;
+               }else {
+                   permiso = true;
+
+               }
+
+            }
+            if (!permiso) {
+                return new ResponseEntity(new Mensaje("Excede el Limite de descubierto"),
+                        HttpStatus.BAD_REQUEST);
+            }
+        }
+        if (movimientoDTO.getTipo().equals("Credito")){
+            logger.info("Dentro del if credito");
+            //logger.info(viejoSaldo.toString());
+            //logger.info(movimientoDTO.getImporte().toString());
+            nuevoSaldo = viejoSaldo + movimientoDTO.getImporte();
+            //logger.info(nuevoSaldo.toString());
         }
 
-        if (movimientoDTO.getTipo() == "Credito"){
-
-            nuevoSaldo = cuenta.getSaldo() + movimientoDTO.getImporte();
-        }
 
         cuenta.setSaldo(nuevoSaldo);
 
-        Movimiento nuevo = new Movimiento(movimientoDTO.getFecha(),
-                                          movimientoDTO.getTipo(),
-                                          movimientoDTO.getDescripcion(),
-                                          movimientoDTO.getImporte(),
-                                          movimientoDTO.getIdcuenta());
+        cuentaService.update(cuenta);
 
-        movimientoService.add(nuevo);
+        Movimiento nuevoMovimiento = new Movimiento(movimientoDTO.getFecha(),
+                                                    movimientoDTO.getTipo(),
+                                                    movimientoDTO.getDescripcion(),
+                                                    movimientoDTO.getImporte(),
+                                                    movimientoDTO.getIdcuenta());
+        movimientoService.add(nuevoMovimiento);
 
-
-        return new ResponseEntity(new Mensaje("Movimiento registrado"),HttpStatus.OK);
+        return new ResponseEntity(new Mensaje("Movimiento Inputado"), HttpStatus.OK);
     }
 }
