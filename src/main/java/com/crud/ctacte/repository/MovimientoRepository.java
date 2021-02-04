@@ -13,4 +13,5 @@ public interface MovimientoRepository extends JpaRepository<Movimiento, Long> {
 
     public Page<Movimiento> findAllByIdcuenta(Long id_cuenta, Pageable pageable);
     public List<Movimiento> findAllByIdcuenta(Long id);
+    public boolean existsByIdcuenta(Long id);
 }

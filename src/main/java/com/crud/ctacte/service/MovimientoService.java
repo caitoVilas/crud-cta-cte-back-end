@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 public class MovimientoService {
@@ -22,17 +21,15 @@ public class MovimientoService {
 
         return movimientoRepository.findAllByIdcuenta(id, pageable);
     }
-
-    /*@Transactional(readOnly = true)
-    public List<Movimiento> list(Long id) {
-
-        return movimientoRepository.findAllById(id);
-    }*/
-
     @Transactional
     public Movimiento add(Movimiento movimiento){
 
         return movimientoRepository.save(movimiento);
+    }
 
+    @Transactional(readOnly = true)
+    public boolean tieneMovimientos(Long id) {
+
+        return movimientoRepository.existsByIdcuenta(id);
     }
 }

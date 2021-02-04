@@ -97,7 +97,7 @@ public class PersonaJuridicaController {
 
         String tipo = "J";
 
-        if (cuentaService.existByTypoAndTitular(tipo,id)) {
+        if (cuentaService.existByTipoAndTitular(tipo,id)) {
             return new ResponseEntity(new Mensaje("La Persona Tiene Cuenta/s"),
                     HttpStatus.BAD_REQUEST);
         }

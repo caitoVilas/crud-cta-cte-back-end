@@ -11,4 +11,5 @@ public interface CuentaRepository extends JpaRepository<Cuenta, Long> {
     public boolean existsByTitular(Long titular);
     public boolean existsByMoneda(String moneda);
     public boolean existsByTipoAndTitular(String tipo, Long titular);
+    public boolean existsByTipoAndTitularAndMoneda(String tipo, Long titular, String moneda);
 }

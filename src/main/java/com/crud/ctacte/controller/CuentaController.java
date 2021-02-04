@@ -4,6 +4,9 @@ import com.crud.ctacte.dto.CuentaDTO;
 import com.crud.ctacte.dto.Mensaje;
 import com.crud.ctacte.entity.Cuenta;
 import com.crud.ctacte.service.CuentaService;
+import com.crud.ctacte.service.MovimientoService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,8 +20,12 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 public class CuentaController {
 
+    private static final Logger logger = LoggerFactory.getLogger(CuentaController.class);
+
     @Autowired
     private CuentaService cuentaService;
+    @Autowired
+    private MovimientoService movimientoService;
 
     // LISTADO DE CUENTAS PAGINADO
     @GetMapping
@@ -49,11 +56,13 @@ public class CuentaController {
     @PostMapping
     public ResponseEntity<?> create(@RequestBody CuentaDTO cuentaDTO){
 
-        if (cuentaService.existTipo(cuentaDTO.getTipo()) && cuentaService.existTitular(
-                cuentaDTO.getTitular()) && cuentaService.existMoneda(cuentaDTO.getMoneda())){
+        if (cuentaService.existCuenta(cuentaDTO.getTipo(),
+                                      cuentaDTO.getTitular(),
+                                      cuentaDTO.getMoneda())) {
 
             return new ResponseEntity(new Mensaje("El Titular ya tiene Cuenta en esa Moneda"),
-                    HttpStatus.BAD_REQUEST);
+                                     HttpStatus.BAD_REQUEST);
+
         }
 
         Cuenta nuevaCuenta = new Cuenta( 0l,
@@ -74,5 +83,21 @@ public class CuentaController {
         Cuenta cuenta = cuentaService.get(id);
 
         return new ResponseEntity<Cuenta>(cuenta, HttpStatus.OK);
+    }
+
+    // ELIMINAR CUENTA SI NO TIENE MOVIMIENTOS
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+
+        if (movimientoService.tieneMovimientos(id)){
+
+            return new ResponseEntity(new Mensaje("La Cuenta Tiene Movimientos"),
+                                      HttpStatus.BAD_REQUEST);
+        }
+
+        cuentaService.delete(id);
+
+        return new ResponseEntity(new Mensaje("Cuenta Eliminada"), HttpStatus.OK);
     }
 }

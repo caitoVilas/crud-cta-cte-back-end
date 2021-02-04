@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.transform.sax.SAXResult;
+
 @Service
 public class CuentaService  {
 
@@ -45,7 +47,7 @@ public class CuentaService  {
     }
 
     @Transactional(readOnly = true)
-    public  boolean existByTypoAndTitular(String tipo, Long titular) {
+    public  boolean existByTipoAndTitular(String tipo, Long titular) {
 
         return cuentaRepository.existsByTipoAndTitular(tipo, titular);
     }
@@ -62,4 +64,15 @@ public class CuentaService  {
         return cuentaRepository.save(cuenta);
     }
 
+    @Transactional(readOnly = true)
+    public boolean existCuenta(String tipo, Long titular, String moneda){
+
+        return cuentaRepository.existsByTipoAndTitularAndMoneda(tipo, titular, moneda);
+    }
+
+    @Transactional
+    public void delete(Long id){
+
+        cuentaRepository.deleteById(id);
+    }
 }
