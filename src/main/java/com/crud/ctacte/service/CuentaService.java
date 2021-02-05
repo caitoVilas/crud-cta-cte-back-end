@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.transform.sax.SAXResult;
+import java.util.List;
 
 @Service
 public class CuentaService  {
@@ -17,9 +18,9 @@ public class CuentaService  {
     private CuentaRepository cuentaRepository;
 
     @Transactional(readOnly = true)
-    public Page<Cuenta> list(Pageable pageable) {
+    public List<Cuenta> list() {
 
-        return cuentaRepository.findAll(pageable);
+        return cuentaRepository.findAll();
     }
 
     @Transactional

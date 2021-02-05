@@ -9,11 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/cuentas/")
@@ -27,29 +28,13 @@ public class CuentaController {
     @Autowired
     private MovimientoService movimientoService;
 
-    // LISTADO DE CUENTAS PAGINADO
+    // LISTADO DE CUENTAS
     @GetMapping
-    public ResponseEntity<Page<Cuenta>> list(
-                            @RequestParam(defaultValue = "0") int page,
-                            @RequestParam(defaultValue = "10") int size,
-                            @RequestParam(defaultValue = "id") String order,
-                            @RequestParam(defaultValue = "true") boolean asc ) {
+    public ResponseEntity<List<Cuenta>> list() {
 
-        Page<Cuenta> cuentas = cuentaService.list(PageRequest.of(
-                page,
-                size,
-                Sort.by(order)
-        ));
+        List<Cuenta> cuentas = cuentaService.list();
 
-        if (!asc) {
-            cuentas = cuentaService.list(PageRequest.of(
-                    page,
-                    size,
-                    Sort.by(order).descending()
-            ));
-        }
-
-        return new ResponseEntity<Page<Cuenta>>(cuentas, HttpStatus.OK);
+        return new ResponseEntity<List<Cuenta>>(cuentas, HttpStatus.OK);
     }
 
     // CREAR CUENTA NUEVA
